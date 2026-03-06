@@ -1,0 +1,66 @@
+{
+  "date": "2026-01-30",
+  "candidate_source": "BUILD",
+  "candidate_output": {
+    "json": true,
+    "db": true
+  },
+  "auto_load_order": [
+    "MEMORY",
+    "DB",
+    "JSON",
+    "BUILD"
+  ],
+  "candidate_json_path": "json\\candidate_groups_2026-01-30.json",
+  "embed_model": "Qwen/Qwen3-Embedding-4B",
+  "sim_threshold": 0.85,
+  "crossday_dedup": {
+    "enabled": true,
+    "history_days": 7,
+    "threshold": 0.88,
+    "dropped_count": 0,
+    "dropped": []
+  },
+  "llm_model": "deepseek-ai/DeepSeek-V3.2",
+  "count_final": 3,
+  "items": [
+    {
+      "dedup_group_id": "iso1",
+      "article_id": 83,
+      "title": "天天学习｜这首军歌越山海",
+      "url": "https://dangjian.gmw.cn/2026-01/30/content_38570342.htm",
+      "source": "gmw",
+      "pub_time": "2026-01-30 14:14",
+      "decision": "solo",
+      "confidence": 1.0,
+      "reason": "无相似候选，直接保留"
+    },
+    {
+      "dedup_group_id": "iso2",
+      "article_id": 85,
+      "title": "学习手记丨“先计于始”的前瞻性思维",
+      "url": "https://dangjian.gmw.cn/2026-01/30/content_38569766.htm",
+      "source": "gmw",
+      "pub_time": "2026-01-30 10:04",
+      "decision": "solo",
+      "confidence": 1.0,
+      "reason": "无相似候选，直接保留"
+    },
+    {
+      "dedup_group_id": "iso3",
+      "article_id": 65,
+      "title": "为实现“十五五”良好开局提供坚强组织保证",
+      "url": "http://dangjian.people.com.cn/n1/2026/0130/c117092-40656254.html",
+      "source": "people",
+      "pub_time": "2026-01-30 00:00:00",
+      "decision": "solo",
+      "confidence": 1.0,
+      "reason": "无相似候选，直接保留"
+    }
+  ],
+  "decisions": [],
+  "logs": {
+    "candidate": "logs\\candidate_build_log_2026-01-30.txt",
+    "dedup": "logs\\dedup_llm_log_2026-01-30.txt"
+  }
+}

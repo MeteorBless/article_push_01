@@ -1,0 +1,25 @@
+{
+  "id": "019c2cf962dccebc07983e567b4dbcd8",
+  "object": "chat.completion",
+  "created": 1770281067,
+  "model": "deepseek-ai/DeepSeek-V3.2",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\n    \"items\": [\n        {\n            \"article_id\": 128,\n            \"topic\": \"党建时政\",\n            \"confidence\": 0.95,\n            \"reason\": \"内容聚焦党内谈心谈话制度，属于党的思想政治工作和组织生活范畴。\"\n        },\n        {\n            \"article_id\": 129,\n            \"topic\": \"党建时政\",\n            \"confidence\": 0.9,\n            \"reason\": \"讨论基层‘微腐败’治理，涉及纪检监察和党风廉政建设。\"\n        },\n        {\n            \"article_id\": 127,\n            \"topic\": \"党建时政\",\n            \"confidence\": 0.85,\n            \"reason\": \"核心是反腐败斗争，虽提及‘十五五’，但主旨是全面从严治党。\"\n        }\n    ]\n}\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2044,
+    "completion_tokens": 165,
+    "total_tokens": 2209,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "system_fingerprint": ""
+}

@@ -1,0 +1,25 @@
+{
+  "id": "019c1d310e72aa0819cb69909030221d",
+  "object": "chat.completion",
+  "created": 1770016280,
+  "model": "deepseek-ai/DeepSeek-V3.2",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\n    \"items\": [\n        {\n            \"article_id\": 9,\n            \"topic\": \"党建时政\",\n            \"confidence\": 0.95,\n            \"reason\": \"内容涉及习近平主席复信及中非友好，属于党建时政范畴。\"\n        },\n        {\n            \"article_id\": 7,\n            \"topic\": \"十五五\",\n            \"confidence\": 0.9,\n            \"reason\": \"内容围绕前瞻性思维与五年规划，多次提及十五五规划建议。\"\n        },\n        {\n            \"article_id\": 1,\n            \"topic\": \"十五五\",\n            \"confidence\": 0.95,\n            \"reason\": \"标题及内容核心为实现十五五良好开局提供组织保证。\"\n        }\n    ]\n}\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 4394,
+    "completion_tokens": 165,
+    "total_tokens": 4559,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "system_fingerprint": ""
+}

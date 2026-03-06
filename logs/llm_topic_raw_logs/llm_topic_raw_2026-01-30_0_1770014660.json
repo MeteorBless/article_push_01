@@ -1,0 +1,25 @@
+{
+  "id": "019c1d18582c81e155d01c98eff203b6",
+  "object": "chat.completion",
+  "created": 1770014660,
+  "model": "deepseek-ai/DeepSeek-V3.2",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n{\n    \"items\": [\n        {\n            \"article_id\": 9,\n            \"topic\": \"党建时政\",\n            \"confidence\": 0.95,\n            \"reason\": \"内容涉及习近平主席复信外国老战士，强调中非友好，属于党建时政范畴。\"\n        },\n        {\n            \"article_id\": 7,\n            \"topic\": \"十五五\",\n            \"confidence\": 0.9,\n            \"reason\": \"文章核心围绕前瞻性思维与五年规划，并明确提及“十五五”规划建议，属于强专题。\"\n        },\n        {\n            \"article_id\": 1,\n            \"topic\": \"党建时政\",\n            \"confidence\": 0.98,\n            \"reason\": \"内容为全国组织部长会议及各地组织工作交流，核心是党的组织建设，属于党建时政。\"\n        }\n    ]\n}\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 4394,
+    "completion_tokens": 188,
+    "total_tokens": 4582,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "system_fingerprint": ""
+}

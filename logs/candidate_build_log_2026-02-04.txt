@@ -1,0 +1,16 @@
+=== Candidate Build ===
+run_date=2026-02-04
+cand_source=BUILD
+embed_model=Qwen/Qwen3-Embedding-4B
+threshold=0.85
+total_articles_after_crossday_filter=3
+total_articles_before_crossday_filter=3
+crossday_dropped=0
+with_embedding=3
+missing_embedding=0
+groups=0
+isolated=3
+missing_items=0
+generated_at=2026-02-05 16:40:34
+
+---- Top Similar Pairs (for tuning) ----

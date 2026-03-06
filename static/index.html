@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日快讯</title>
+
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans SC"', 'sans-serif'],
+                        serif:['"Noto Serif SC"', 'serif'],
+                    },
+                    colors: {
+                        partyRed: { 600: '#dc2626', 700: '#b91c1c', 800: '#991b1b', 900: '#7f1d1d' },
+                        partyGold: { 50: '#fffbeb', 100: '#fef3c7', 500: '#f59e0b' },
+                        darkCard: '#27272a',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        [v-cloak] { display: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .header-pattern {
+            background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* 动画相关 */
+        .list-move, .list-enter-active, .list-leave-active { transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .list-enter-from, .list-leave-to { opacity: 0; transform: translateY(30px); }
+        .list-leave-active { position: absolute; width: 100%; }
+
+        .collapse-enter-active, .collapse-leave-active { transition: all 0.4s ease; max-height: 500px; opacity: 1; overflow: hidden; }
+        .collapse-enter-from, .collapse-leave-to { max-height: 0; opacity: 0; }
+
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+        .scale-in-enter-active, .scale-in-leave-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .scale-in-enter-from, .scale-in-leave-to { transform: scale(0.95); opacity: 0; }
+
+        .rotate-icon { transition: transform 0.3s ease; }
+        .rotate-icon.rotated { transform: rotate(180deg); }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-black text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-500 font-sans">
+
+    <div id="app" v-cloak class="min-h-screen flex flex-col lg:flex-row max-w-[1600px] mx-auto bg-gray-50 dark:bg-black shadow-2xl">
+
+        <!-- 左侧侧边栏 (保持不变) -->
+        <aside class="lg:w-72 lg:h-screen lg:sticky lg:top-0 flex flex-col bg-white dark:bg-darkCard border-r border-gray-200 dark:border-gray-800 z-50 shadow-lg lg:shadow-none transition-colors duration-300">
+            <div class="h-48 bg-partyRed-700 header-pattern flex flex-col justify-center items-center text-center p-6 relative overflow-hidden shadow-md cursor-pointer group" @click="resetFilter">
+                <h1 class="text-3xl font-serif font-bold text-white tracking-widest">每日资讯参考</h1>
+                <p class="text-xs text-partyRed-100 mt-2 opacity-80 uppercase tracking-wider">Internal Reference</p>
+                <div class="absolute bottom-0 left-0 w-full h-1 bg-yellow-500"></div>
+            </div>
+
+            <div class="flex-1 p-6 flex flex-col gap-6 overflow-y-auto">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400">刊选日期</label>
+                    <button @click="showCalendar = true" class="w-full flex flex-col items-center bg-white dark:bg-black border border-gray-300 dark:border-gray-700 p-4 border-l-4 border-l-partyRed-700 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group relative overflow-hidden">
+                        <div v-if="selectedDate" class="text-center w-full animate-fade-in">
+                            <span class="text-xs text-gray-400 font-serif mb-1 block">当前选定</span>
+                            <div class="text-3xl font-serif font-bold text-partyRed-700 dark:text-partyRed-600">{{ parseInt(selectedDate.split('-')[2]) }}</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 font-serif border-t border-gray-200 dark:border-gray-700 mt-2 pt-1 w-full">{{ selectedDate.split('-')[0] }}年{{ parseInt(selectedDate.split('-')[1]) }}月</div>
+                        </div>
+                        <div v-else class="text-center py-2 animate-fade-in">
+                            <svg class="w-8 h-8 text-partyRed-700 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            <span class="text-lg font-serif font-bold text-gray-700 dark:text-gray-200">全部归档</span>
+                        </div>
+                        <div class="absolute right-2 top-2 text-gray-300 group-hover:text-partyRed-700 transition-colors">▼</div>
+                    </button>
+                    <button v-if="selectedDate" @click="resetFilter" class="w-full text-xs text-center text-gray-500 hover:text-partyRed-700 hover:underline transition-colors">显示所有日期</button>
+                </div>
+
+                <button @click="showSettings = true" class="w-full flex items-center justify-between bg-white dark:bg-black border border-gray-200 dark:border-gray-700 py-4 px-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 hover:border-partyRed-700 transition-all duration-300 group">
+                    <div class="flex items-center gap-3">
+                        <span class="text-partyRed-700 dark:text-partyRed-600 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+                        </span>
+                        <span class="font-serif font-bold text-gray-800 dark:text-gray-200 text-lg">专题订阅</span>
+                    </div>
+                    <span v-if="mySubscriptions.length > 0" class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-partyRed-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-partyRed-600"></span>
+                    </span>
+                </button>
+
+                <button @click="toggleDark" class="mt-auto w-full flex items-center justify-center gap-2 py-3 text-sm text-gray-500 hover:text-partyRed-700 transition-colors border-t border-gray-100 dark:border-gray-800 pt-6">
+                    <span class="text-lg transition-transform hover:rotate-180 duration-500">{{ isDark ? '🌞' : '🌙' }}</span>
+                    <span>{{ isDark ? '切换至日间模式' : '切换至夜间模式' }}</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- 右侧主内容区 -->
+        <main class="flex-1 p-4 lg:p-10 overflow-y-auto no-scrollbar bg-gray-100 dark:bg-black transition-colors duration-500">
+            <transition name="fade" mode="out-in">
+                <div v-if="loading" class="flex flex-col items-center justify-center py-32 min-h-[50vh]">
+                    <div class="w-16 h-16 border-4 border-gray-200 border-t-partyRed-700 rounded-full animate-spin"></div>
+                    <p class="mt-6 text-partyRed-800 font-serif font-bold text-xl animate-pulse">正在读取数据...</p>
+                </div>
+
+                <div v-else class="space-y-12 max-w-5xl mx-auto pb-20">
+                    <div v-if="filteredDigestData.length === 0" class="text-center py-24 bg-white dark:bg-darkCard shadow-sm border-t-4 border-partyRed-700 rounded-b-lg">
+                        <p class="text-gray-400 text-6xl mb-4">🗂️</p>
+                        <p class="text-gray-800 dark:text-gray-300 text-xl font-serif font-bold">无符合条件的内容</p>
+                        <div class="mt-6 space-x-4">
+                            <button @click="showCalendar = true" class="px-6 py-2 border border-gray-300 hover:border-partyRed-700 text-gray-600 hover:text-partyRed-700 transition-colors">切换日期</button>
+                            <button @click="showSettings = true" class="px-6 py-2 bg-partyRed-700 text-white hover:bg-partyRed-800 transition-colors shadow-lg shadow-partyRed-700/20">调整订阅</button>
+                        </div>
+                    </div>
+
+                    <div v-for="daily in filteredDigestData" :key="daily.date" class="relative group/day">
+                        <div class="sticky top-0 lg:-top-6 z-20 py-4 bg-gray-100/95 dark:bg-black/95 backdrop-blur-md mb-6 border-b-2 border-partyRed-700 flex items-center gap-4 transition-colors duration-300">
+                            <div class="bg-partyRed-700 text-white px-4 py-1 text-lg font-serif font-bold shadow-md">{{ daily.date }}</div>
+                            <span class="text-gray-500 dark:text-gray-400 font-serif text-sm">NEWS DIGEST</span>
+                        </div>
+
+                        <transition-group name="list" tag="div" class="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+                            <div v-for="(topicGroup, idx) in daily.topics" :key="topicGroup.topic + daily.date"
+                                 class="flex flex-col bg-white dark:bg-darkCard shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-sm">
+
+                                <div class="h-1 bg-partyRed-700 w-full"></div>
+
+                                <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
+                                    <h3 class="text-xl font-serif font-bold text-partyRed-900 dark:text-gray-100 flex items-center gap-2">
+                                        <span class="text-2xl text-partyRed-700">■</span>
+                                        {{ topicGroup.topic }}
+                                    </h3>
+                                    <span class="text-xs font-bold bg-partyRed-50 text-partyRed-800 border border-partyRed-100 px-3 py-1">共 {{ topicGroup.count }} 条</span>
+                                </div>
+
+                                <div class="p-6 flex flex-col gap-8 flex-1">
+                                    <div v-for="article in topicGroup.articles" :key="article.item_no" class="flex flex-col gap-2">
+
+                                        <!-- 文章标题区域：修改了 class 绑定和点击事件 -->
+                                        <h4 class="text-xl font-serif font-bold leading-relaxed text-justify relative">
+                                            <a v-if="article.url"
+                                               :href="article.url"
+                                               target="_blank"
+                                               @click="markAsRead(article)"
+                                               class="transition-colors duration-200 block"
+                                               :class="isRead(article)
+                                                   ? 'text-gray-400 dark:text-gray-500 line-through decoration-gray-300 decoration-1'
+                                                   : 'text-gray-900 dark:text-gray-100 hover:text-partyRed-700 dark:hover:text-partyRed-400 hover:underline decoration-2 underline-offset-4 decoration-partyRed-200'">
+                                                {{ article.title }}
+
+                                                <!-- 已阅标签 (仅当已读时显示) -->
+                                                <span v-if="isRead(article)" class="ml-2 inline-block text-xs font-sans font-normal text-gray-400 border border-gray-300 rounded px-1 py-0.5 no-underline align-middle tracking-tight">
+                                                    已阅
+                                                </span>
+                                            </a>
+                                            <span v-else class="text-gray-900 dark:text-gray-100">{{ article.title }}</span>
+                                        </h4>
+
+                                        <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                                            <span v-if="article.source" class="font-bold text-gray-600 dark:text-gray-300">【{{ article.source }}】</span>
+                                            <span v-if="article.pub_time">{{ formatTime(article.pub_time) }}</span>
+                                            <span v-if="article.score > 80" class="text-partyRed-700 font-bold ml-auto text-xs border border-partyRed-200 px-1">重点推荐</span>
+                                        </div>
+
+                                        <div v-if="article.summary">
+                                            <div @click="article.showSummary = !article.showSummary"
+                                                 class="flex items-center gap-2 cursor-pointer select-none text-partyRed-700 dark:text-partyRed-400 font-bold text-sm border-b border-dashed border-partyRed-300 hover:border-partyRed-700 transition-colors duration-200 mb-2 py-1 w-fit">
+                                                <span>{{ article.showSummary ? '收起摘要' : '阅读摘要' }}</span>
+                                                <svg class="w-4 h-4 rotate-icon" :class="{ 'rotated': article.showSummary }" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                            </div>
+                                            <transition name="collapse">
+                                                <div v-show="article.showSummary" class="text-base leading-7 text-gray-700 dark:text-gray-300 font-sans text-justify indent-8 p-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-700 rounded-sm">
+                                                    {{ article.summary }}
+                                                </div>
+                                            </transition>
+                                        </div>
+
+                                        <hr class="border-dashed border-gray-200 dark:border-gray-800 mt-4" v-if="topicGroup.articles.indexOf(article) !== topicGroup.articles.length - 1">
+                                    </div>
+                                </div>
+                            </div>
+                        </transition-group>
+                    </div>
+                </div>
+            </transition>
+        </main>
+
+        <!-- 日历/订阅模态框部分保持不变 (已省略以节省篇幅，功能相同) -->
+        <transition name="fade"><div v-if="showCalendar" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showCalendar = false"><transition name="scale-in" appear><div v-if="showCalendar" class="bg-white dark:bg-darkCard w-full max-w-lg shadow-2xl border-t-8 border-partyRed-700 transform origin-center"><div class="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-white/5"><h3 class="text-2xl font-serif font-bold text-partyRed-800 dark:text-gray-100">{{ calendarYear }}年{{ calendarMonth }}月</h3><div class="flex gap-2"><button @click="changeMonth(-1)" class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-600 dark:text-gray-300"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><button @click="changeMonth(1)" class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-600 dark:text-gray-300"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button></div></div><div class="p-6"><div class="grid grid-cols-7 mb-4"><div v-for="day in['日','一','二','三','四','五','六']" :key="day" class="text-center text-sm font-bold text-gray-400">{{ day }}</div></div><div class="grid grid-cols-7 gap-2"><div v-for="n in calendarFirstDayOfWeek" :key="'empty-'+n" class="h-10"></div><button v-for="day in calendarDaysInMonth" :key="day" @click="selectDateFromCalendar(day)" :disabled="!hasData(day)" class="h-10 w-10 mx-auto flex items-center justify-center rounded-full font-serif transition-all duration-300 relative group" :class="[isSelectedDate(day)?'bg-partyRed-700 text-white shadow-lg scale-110':'' , hasData(day)&&!isSelectedDate(day)?'text-gray-900 dark:text-gray-100 hover:bg-partyRed-100 dark:hover:bg-partyRed-900 font-bold border border-gray-200 dark:border-gray-700':'', !hasData(day)?'text-gray-300 dark:text-gray-600 cursor-default':'']">{{ day }}<span v-if="hasData(day)&&!isSelectedDate(day)" class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-partyRed-700 rounded-full"></span></button></div><div class="mt-8 flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-700"><button @click="resetFilter();showCalendar=false" class="text-sm text-gray-500 hover:text-partyRed-700 underline transition-colors">显示全部归档</button><button @click="showCalendar=false" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded transition-colors">关闭</button></div></div></div></transition></div></transition><transition name="fade"><div v-if="showSettings" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showSettings = false"><transition name="scale-in" appear><div v-if="showSettings" class="bg-white dark:bg-darkCard w-full max-w-3xl shadow-2xl flex flex-col max-h-[85vh] border-t-8 border-partyRed-700 transform origin-center"><div class="px-8 py-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-white/5"><div class="flex items-center gap-3"><div class="w-1.5 h-6 bg-partyRed-700"></div><div><h3 class="text-2xl font-serif font-bold text-gray-900 dark:text-white">专题订阅管理</h3></div></div><button @click="showSettings=false" class="text-gray-400 hover:text-partyRed-700 transition-colors"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div class="px-8 py-8 overflow-y-auto flex-1 bg-white dark:bg-darkCard"><div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-2"><span class="text-sm font-bold text-gray-500">可选栏目</span><div class="flex gap-4 text-sm font-medium"><button @click="selectAllTopics" class="text-partyRed-700 hover:underline transition-colors">全选</button><span class="text-gray-300">|</span><button @click="clearSubscriptions" class="text-gray-500 hover:text-gray-900 hover:underline transition-colors">重置</button></div></div><div class="grid grid-cols-2 sm:grid-cols-3 gap-4"><label v-for="topic in allAvailableTopics" :key="topic" class="flex items-center gap-3 p-3 border cursor-pointer transition-all select-none group hover:shadow-md hover:border-partyRed-300" :class="isSubscribed(topic)?'bg-partyRed-50 border-partyRed-600 dark:bg-partyRed-900/30 dark:border-partyRed-500':'bg-white border-gray-200 dark:bg-black dark:border-gray-700'"><div class="relative flex items-center justify-center w-5 h-5"><input type="checkbox" :value="topic" v-model="mySubscriptions" @change="saveSubscriptions" class="peer appearance-none w-5 h-5 border border-gray-400 rounded-sm checked:bg-partyRed-700 checked:border-partyRed-700 transition-colors duration-200"><svg class="absolute w-3.5 h-3.5 text-white pointer-events-none hidden peer-checked:block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div><span class="text-base font-serif font-medium text-gray-800 dark:text-gray-200 truncate group-hover:text-partyRed-700 transition-colors" :title="topic">{{ topic }}</span></label></div></div><div class="px-8 py-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-white/5 flex justify-end"><button @click="showSettings=false" class="px-10 py-3 bg-partyRed-700 hover:bg-partyRed-800 text-white text-lg font-serif font-bold shadow-lg shadow-partyRed-700/30 transition-all hover:scale-105 active:scale-95">保存设置</button></div></div></transition></div></transition>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue
+
+        createApp({
+            setup() {
+                const rawDigestList = ref([])
+                const availableDates = ref([])
+                const selectedDate = ref('')
+                const loading = ref(true)
+                const isDark = ref(false)
+
+                const showSettings = ref(false)
+                const showCalendar = ref(false)
+                const mySubscriptions = ref([])
+
+                // 已读文章集合
+                const readArticles = ref(new Set())
+
+                // 【新增】板块预设顺序，排在此数组内的板块会严格按此顺序显示
+                const predefinedTopicOrder =[
+                    "第一议题",
+                    "政绩观专题教育",
+                    "国家安全",
+                    "党建新闻",
+                    "经验做法",
+                    "党史上的今天"
+                ];
+
+                const today = new Date()
+                const calendarYear = ref(today.getFullYear())
+                const calendarMonth = ref(today.getMonth() + 1)
+
+                // ---------------- 已读标记逻辑 ----------------
+                const isRead = (article) => {
+                    const key = article.url || `${article.title}_${article.item_no}`
+                    return readArticles.value.has(key)
+                }
+
+                const markAsRead = (article) => {
+                    const key = article.url || `${article.title}_${article.item_no}`
+                    if (!key) return
+
+                    readArticles.value.add(key)
+                    let savedArray = Array.from(readArticles.value)
+                    if (savedArray.length > 1000) {
+                        savedArray = savedArray.slice(-1000)
+                        readArticles.value = new Set(savedArray)
+                    }
+                    localStorage.setItem('read_articles', JSON.stringify(savedArray))
+                }
+                // ---------------------------------------------
+
+                const fetchDates = async () => {
+                    try {
+                        const res = await fetch('/api/dates')
+                        const data = await res.json()
+                        availableDates.value = data.dates
+                        if (data.dates.length > 0) {
+                            const latest = data.dates[0]
+                            const [y, m] = latest.split('-')
+                            calendarYear.value = parseInt(y)
+                            calendarMonth.value = parseInt(m)
+                        }
+                    } catch (e) { console.error(e) }
+                }
+
+                const fetchDigest = async (date) => {
+                    loading.value = true
+                    try {
+                        const url = date ? `/api/digest?date=${date}` : '/api/digest'
+                        const response = await fetch(url)
+                        const data = await response.json()
+                        let list = Array.isArray(data) ? data : [data]
+
+                        list.forEach(day => {
+                            if(day.topics) {
+                                day.topics.forEach(topic => {
+                                    if(topic.articles) {
+                                        topic.articles.forEach(article => {
+                                            article.showSummary = true
+                                        })
+                                    }
+                                })
+                            }
+                        })
+                        rawDigestList.value = list
+                    } catch (error) { console.error(error) }
+                    finally { setTimeout(() => { loading.value = false }, 300) }
+                }
+
+                // 【修改】重新设计了计算属性，以加入排序逻辑
+                const filteredDigestData = computed(() => {
+                    if (!rawDigestList.value.length) return[]
+
+                    return rawDigestList.value.map(daily => {
+                        // 1. 过滤订阅
+                        let filteredTopics = daily.topics
+                        if (mySubscriptions.value.length > 0) {
+                            filteredTopics = daily.topics.filter(t => mySubscriptions.value.includes(t.topic))
+                        }
+
+                        // 2. 根据预设排序数组进行排序
+                        let sortedTopics = [...filteredTopics].sort((a, b) => {
+                            let indexA = predefinedTopicOrder.indexOf(a.topic)
+                            let indexB = predefinedTopicOrder.indexOf(b.topic)
+
+                            // 如果板块名称不在预设的数组里，将其排到最后 (赋予极大的索引值)
+                            if (indexA === -1) indexA = 999
+                            if (indexB === -1) indexB = 999
+
+                            // 若两者索引相同（例如都不在预设列表内），按字母名稳定排序
+                            if (indexA === indexB) {
+                                return a.topic.localeCompare(b.topic)
+                            }
+
+                            return indexA - indexB
+                        })
+
+                        return { ...daily, topics: sortedTopics }
+                    }).filter(daily => daily.topics.length > 0)
+                })
+
+                // 侧边栏所有可订阅栏目顺序也跟着预设顺序调整显示逻辑
+                const allAvailableTopics = computed(() => {
+                    const topicSet = new Set()
+                    rawDigestList.value.forEach(daily => daily.topics.forEach(t => topicSet.add(t.topic)))
+                    mySubscriptions.value.forEach(t => topicSet.add(t))
+
+                    return Array.from(topicSet).sort((a, b) => {
+                        let indexA = predefinedTopicOrder.indexOf(a)
+                        let indexB = predefinedTopicOrder.indexOf(b)
+                        if (indexA === -1) indexA = 999
+                        if (indexB === -1) indexB = 999
+                        if (indexA === indexB) return a.localeCompare(b)
+                        return indexA - indexB
+                    })
+                })
+
+                const isSubscribed = (topic) => mySubscriptions.value.includes(topic)
+                const saveSubscriptions = () => localStorage.setItem('my_subscriptions', JSON.stringify(mySubscriptions.value))
+                const clearSubscriptions = () => { mySubscriptions.value = []; saveSubscriptions() }
+                const selectAllTopics = () => {
+                    const currentSet = new Set(mySubscriptions.value)
+                    allAvailableTopics.value.forEach(t => currentSet.add(t))
+                    mySubscriptions.value = Array.from(currentSet)
+                    saveSubscriptions()
+                }
+
+                const calendarDaysInMonth = computed(() => new Date(calendarYear.value, calendarMonth.value, 0).getDate())
+                const calendarFirstDayOfWeek = computed(() => new Date(calendarYear.value, calendarMonth.value - 1, 1).getDay())
+                const changeMonth = (delta) => {
+                    let newMonth = calendarMonth.value + delta
+                    if (newMonth > 12) { calendarMonth.value = 1; calendarYear.value++ }
+                    else if (newMonth < 1) { calendarMonth.value = 12; calendarYear.value-- }
+                    else { calendarMonth.value = newMonth }
+                }
+                const hasData = (day) => {
+                    const dateStr = `${calendarYear.value}-${String(calendarMonth.value).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+                    return availableDates.value.includes(dateStr)
+                }
+                const isSelectedDate = (day) => {
+                    if (!selectedDate.value) return false
+                    const dateStr = `${calendarYear.value}-${String(calendarMonth.value).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+                    return selectedDate.value === dateStr
+                }
+                const selectDateFromCalendar = (day) => {
+                    if (!hasData(day)) return
+                    const dateStr = `${calendarYear.value}-${String(calendarMonth.value).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+                    selectedDate.value = dateStr
+                    fetchDigest(dateStr)
+                    showCalendar.value = false
+                }
+                const resetFilter = () => { selectedDate.value = ''; fetchDigest('') }
+                const toggleDark = () => {
+                    isDark.value = !isDark.value
+                    if (isDark.value) { document.documentElement.classList.add('dark'); localStorage.theme = 'dark' }
+                    else { document.documentElement.classList.remove('dark'); localStorage.theme = 'light' }
+                }
+                const formatTime = (timeStr) => timeStr ? timeStr.substring(11, 16) : ''
+
+                onMounted(async () => {
+                    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                        isDark.value = true
+                        document.documentElement.classList.add('dark')
+                    }
+                    const savedSubs = localStorage.getItem('my_subscriptions')
+                    if (savedSubs) { try { mySubscriptions.value = JSON.parse(savedSubs) } catch (e) {} }
+
+                    // 3. 页面加载时恢复已读状态
+                    const savedReads = localStorage.getItem('read_articles')
+                    if (savedReads) {
+                        try {
+                            readArticles.value = new Set(JSON.parse(savedReads))
+                        } catch (e) { console.error("读取已读列表失败", e) }
+                    }
+
+                    await fetchDates()
+                    await fetchDigest('')
+                })
+
+                return {
+                    filteredDigestData, loading, isDark, showSettings, showCalendar,
+                    mySubscriptions, allAvailableTopics, availableDates, selectedDate,
+                    calendarYear, calendarMonth, calendarDaysInMonth, calendarFirstDayOfWeek,
+                    // 新增导出
+                    isRead, markAsRead,
+                    //
+                    fetchDigest, toggleDark, formatTime, isSubscribed, saveSubscriptions,
+                    clearSubscriptions, selectAllTopics, resetFilter,
+                    changeMonth, hasData, isSelectedDate, selectDateFromCalendar
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+=== Embedding 日期：2026-02-04 文章数：3 ===
+MODEL=Qwen/Qwen3-Embedding-4B
+
+
+=== 统计 ===
+写入 embedding：0
+跳过已存在：3

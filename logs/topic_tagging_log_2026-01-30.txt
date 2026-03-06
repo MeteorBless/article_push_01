@@ -1,0 +1,32 @@
+=== Topic Tagging (SINGLE LABEL - WITH SWITCHES) ===
+run_date=2026-01-30
+ENABLE_RULE=False
+ENABLE_LLM=True
+FORCE_RULE_FALLBACK_WHEN_NO_LLM=True
+rules_threshold=1
+conflict_gap=0
+llm_model=deepseek-ai/DeepSeek-V3.2
+total_items=3
+generated_at=2026-02-03 11:20:30
+
+rule_written_directly=0
+rule_conflict_pushed_to_llm=0
+rule_nohit_pushed_to_llm=0
+rule_forced_written=0
+skipped_when_no_llm=0
+total_llm_candidates=3
+
+============================================================================================
+[2026-02-03 11:20:30] LLM batch 0-2 size=3 raw=logs\llm_topic_raw_logs\llm_topic_raw_2026-01-30_0_1770088830.json
+[2026-02-03 11:20:30] ▶ REQUEST(user snippet)
+请对下列新闻逐条进行主题分类。必须只输出严格JSON，topic只能来自 allowed_topics。
+
+{"task": "classify_topic_single", "allowed_topics": ["党建时政", "非传统安全", "国际", "十五五", "AI学习", "法律条文"], "rules": ["每条新闻必须且仅分配 1 个主题。", "主题只能来自 allowed_topics。", "如果不确定，选择最贴近的一类。", "十五五/法律条文/党建时政属于强专题，命中时优先。"], "output_format": {"items": [{"article_id": "int", "topic": "one of allowed_topics", "confidence": "0~1 float", "reason": "string<=40字"}]}, "items": [{"article_id": 83, "title": "天天学习｜这首军歌越山海", "source": "gmw", "pub_time": "2026-01-30 14:14"...
+
+[2026-02-03 11:20:39] ◀ RESPONSE(raw len=533)
+[2026-02-03 11:20:39] ✅ LLM mapped=3 llm_written=3
+
+============================================================================================
+[2026-02-03 11:20:40] SUMMARY
+total_topic_rows_in_db=3
+breakdown: rule_confirmed=0 + rule_forced=0 + llm_written=3

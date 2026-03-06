@@ -1,0 +1,66 @@
+{
+  "date": "2026-02-04",
+  "candidate_source": "BUILD",
+  "candidate_output": {
+    "json": true,
+    "db": true
+  },
+  "auto_load_order": [
+    "MEMORY",
+    "DB",
+    "JSON",
+    "BUILD"
+  ],
+  "candidate_json_path": "json\\candidate_groups_2026-02-04.json",
+  "embed_model": "Qwen/Qwen3-Embedding-4B",
+  "sim_threshold": 0.85,
+  "crossday_dedup": {
+    "enabled": true,
+    "history_days": 7,
+    "threshold": 0.88,
+    "dropped_count": 0,
+    "dropped": []
+  },
+  "llm_model": "deepseek-ai/DeepSeek-V3.2",
+  "count_final": 3,
+  "items": [
+    {
+      "dedup_group_id": "iso1",
+      "article_id": 128,
+      "title": "谈心谈话不能“走过场”",
+      "url": "https://dangjian.gmw.cn/2026-02/04/content_38578430.htm",
+      "source": "gmw",
+      "pub_time": "2026-02-04 15:41",
+      "decision": "solo",
+      "confidence": 1.0,
+      "reason": "无相似候选，直接保留"
+    },
+    {
+      "dedup_group_id": "iso2",
+      "article_id": 129,
+      "title": "治理“微腐败”须对症下药",
+      "url": "https://dangjian.gmw.cn/2026-02/04/content_38578423.htm",
+      "source": "gmw",
+      "pub_time": "2026-02-04 15:37",
+      "decision": "solo",
+      "confidence": 1.0,
+      "reason": "无相似候选，直接保留"
+    },
+    {
+      "dedup_group_id": "iso3",
+      "article_id": 127,
+      "title": "更加清醒坚定地推进反腐败斗争",
+      "url": "https://news.gmw.cn/2026-02/04/content_38576979.htm",
+      "source": "gmw",
+      "pub_time": "2026-02-04 00:00:00",
+      "decision": "solo",
+      "confidence": 1.0,
+      "reason": "无相似候选，直接保留"
+    }
+  ],
+  "decisions": [],
+  "logs": {
+    "candidate": "logs\\candidate_build_log_2026-02-04.txt",
+    "dedup": "logs\\dedup_llm_log_2026-02-04.txt"
+  }
+}
